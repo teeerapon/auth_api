@@ -1,76 +1,112 @@
-'use strict';
-const ptec_useright = require('../PTEC_DATA/ptec_useright');
-const jwt = require('jsonwebtoken');
+"use strict";
+const ptec_ops = require("../PTEC_DATA/ptec_ops");
+const jwt = require("jsonwebtoken");
 const config = process.env;
+config.TZ= "Asia/Bangkok";
+
+const register = async (req, res, next) => {
+  try {
+    const data_api = req.body;
+    if (
+      !data_api.vendor_code ||
+      !data_api.email ||
+      !data_api.tel ||
+      !data_api.taxid
+    ) {
+      return res.status(400).send("input is requried!");
+    }
+
+    const olduser = await ptec_ops.STrack_API_CheckUserExists(data_api);
+    if (olduser.length > 0) {
+      return res.status(409).send("Please login");
+    }
+    const response = await ptec_ops.STrack_API_Register(data_api);
+    const token = jwt.sign(data_api, process.env.TOKEN_KEY, {
+      expiresIn: "2h",
+    });
+
+    //save token
+    data_api.token = token;
+
+    return res.status(201).json(data_api);
+  } catch (error) {
+    return res.status(400).send(error.message);
+  }
+};
 
 const user_login = async (req, res, next) => {
   try {
     const data_api = req.body;
-    const response = await ptec_useright.STrack_Register_API(data_api)
-    if (!response || response === 'Invalid Vendor_Code') {
-      res.status(201).send("You are not membership");
-    } else {
-      const token = jwt.sign(data_api,
-        process.env.TOKEN_KEY,
-        {
-          expiresIn: 60 * 24 // expires in 24 hours
-        }
-      )
+    console.log(data_api);
+    if (
+      !data_api.vendor_code ||
+      !data_api.taxid
+    ) {
+      return res.status(400).send("input is requried!");
+    }
 
-      //save token
+    const olduser = await ptec_ops.STrack_API_CheckUserExists(data_api);
+    console.log(olduser.length);
+    if (olduser.length > 0) {
+      const token = jwt.sign(data_api, process.env.TOKEN_KEY, {
+        expiresIn: "2h",
+      });
+      
+      // console.log('in2');
       data_api.token = token;
 
-      res.status(200).json(data_api)
+      res.status(201).json(data_api);
+    }else{
+        return res.status(400).send("Invalid Credentials");
     }
   } catch (error) {
-    res.status(201).send(error.message);
+    return res.status(400).send(error.message);
   }
-}
+};
 
-const STrack_SuccessJob_From_API = async (req, res, next) => {
-  const token = req.body.token || req.query.token || req.headers['x-access-token'];
-
-  if (!token) {
-    return res.status(403).send("A token is required")
-  } else {
-    try {
-      const decoded = jwt.verify(token, config.TOKEN_KEY);
-      req.users = decoded;
-      // Token
-      const successJob = req.body;
-      const response = await ptec_useright.STrack_SuccessJob_From_API(successJob)
-
-    } catch (err) {
-      return res.status(401).send("Invalid token")
+const STrack_API_SuccessJob_From = async (req, res, next) => {
+  try {
+    const data_api = req.body;
+    console.log(data_api);
+    if (
+      !data_api.opscode ||
+      !data_api.begindate||
+      !data_api.enddate||
+      !data_api.detail||
+      !data_api.taxid
+    ) {
+      return res.status(400).send("input is requried!");
     }
+    console.log(data_api.begindate);
+    console.log(data_api.enddate);
+    const response = await ptec_ops.STrack_API_SuccessJob_From(data_api);
+    res.status(200).json(response);
+  } catch (err) {
+    res.status(400).send(err.message);
   }
+};
 
-  return next();
-}
-
-const STrack_UpdateStatus_From_API = async (req, res, next) => {
-  const token = req.body.token || req.query.token || req.headers['x-access-token'];
-
-  if (!token) {
-    return res.status(403).send("A token is required")
-  } else {
-    try {
-      const decoded = jwt.verify(token, config.TOKEN_KEY);
-      req.users = decoded;
-      // Token
-      const successJob = req.body;
-      const response = await ptec_useright.STrack_UpdateStatus_From_API(successJob)
-
-    } catch (err) {
-      return res.status(401).send("Invalid token")
+const STrack_API_UpdateStatus_From = async (req, res, next) => {
+  try {
+    const data_api = req.body;
+    if (
+      !data_api.opscode ||
+      !data_api.order||
+      !data_api.stepid||
+      !data_api.taxid
+    ) {
+      return res.status(400).send("input is requried!");
     }
+    const response = await ptec_ops.STrack_API_UpdateStatus_From(data_api);
+    res.status(200).json(response);
+  } catch (err) {
+    res.status(400).send(err.message);
   }
-
-  return next();
-}
+};
 
 module.exports = {
+  register,
   user_login,
-  STrack_SuccessJob_From_API,
-  STrack_UpdateStatus_From_API
-}
+  STrack_API_SuccessJob_From,
+  STrack_API_UpdateStatus_From,
+};
