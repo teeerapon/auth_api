@@ -40,12 +40,10 @@ const STrack_API_SuccessJob_From = async (res) => {
   const config = require('../../config');
   const sql = require('mssql');
     let pool = await sql.connect(config.PTEC.object_test_ops.sql);
-    console.log(res.begindate);
-    console.log(res.enddate);
     const response = await pool.request()
       .input('opscode', sql.NVarChar, res.opscode)
-      .input('begindate', sql.DateTime, res.begindate)
-      .input('enddate', sql.DateTime, res.enddate)
+      .input('begindate', sql.NVarChar, res.begindate)
+      .input('enddate', sql.NVarChar, res.enddate)
       .input('detail', sql.NVarChar, res.detail)
       .input('taxid', sql.NVarChar, res.taxid)
       .query(`exec ${config.PTEC.object_test_ops.sql.database}.dbo.STrack_API_SuccessJob_From @opscode, @begindate, @enddate, @detail,  @taxid `);
