@@ -7,13 +7,13 @@ const router = express.Router();
 
 const {
     register,
-    user_login,
+    login_outside,
     STrack_API_SuccessJob_From,
     STrack_API_UpdateStatus_From
 } = ptec_useright;
 
 router.post('/register',register);
-router.post('/login', user_login);
+router.post('/login_outside', login_outside);
 router.post('/STrack_API_SuccessJob_From',auth_outside, STrack_API_SuccessJob_From);
 router.post('/STrack_API_UpdateStatus_From',auth_outside, STrack_API_UpdateStatus_From);
 

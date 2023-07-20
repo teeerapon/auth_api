@@ -34,7 +34,7 @@ const register = async (req, res, next) => {
   }
 };
 
-const user_login = async (req, res, next) => {
+const login_outside = async (req, res, next) => {
   try {
     const data_api = req.body;
     console.log(data_api);
@@ -77,8 +77,6 @@ const STrack_API_SuccessJob_From = async (req, res, next) => {
     ) {
       return res.status(400).send("input is requried!");
     }
-    console.log(data_api.begindate);
-    console.log(data_api.enddate);
     const response = await ptec_ops.STrack_API_SuccessJob_From(data_api);
     res.status(200).json(response);
   } catch (err) {
@@ -106,7 +104,7 @@ const STrack_API_UpdateStatus_From = async (req, res, next) => {
 
 module.exports = {
   register,
-  user_login,
+  login_outside,
   STrack_API_SuccessJob_From,
   STrack_API_UpdateStatus_From,
 };
