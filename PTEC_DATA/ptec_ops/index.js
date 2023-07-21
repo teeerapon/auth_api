@@ -48,7 +48,7 @@ const STrack_API_SuccessJob_From = async (res) => {
       .input('taxid', sql.NVarChar, res.taxid)
       .query(`exec ${config.PTEC.object_test_ops.sql.database}.dbo.STrack_API_SuccessJob_From @opscode, @begindate, @enddate, @detail,  @taxid `);
     sql.close()
-    return response.recordsets;
+    return response.recordsets[0];
 }
 
 const STrack_API_UpdateStatus_From = async (res) => {
@@ -63,7 +63,7 @@ const STrack_API_UpdateStatus_From = async (res) => {
     .input('taxid', sql.NVarChar, res.taxid)
     .query(`exec ${config.PTEC.object_test_ops.sql.database}.dbo.[STrack_API_UpdateStatus_From] @opscode, @order, @stepid, @taxid `);
   sql.close()
-  return response.recordsets;
+  return response.recordsets[0];
 }
 
 module.exports = {
